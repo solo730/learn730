@@ -79,6 +79,20 @@ No login. No paywall. No internet required. Just open it and study.
 
 ---
 
+## 📖 Content Attribution
+
+All study content is based on the official **AWS Certified Cloud Practitioner (CLF-C02) Exam Guide** published by Amazon Web Services.
+
+Practice questions and flashcard content are original works created by Solo730 Multimedia LLC for educational purposes, written to reflect the topics, domains, and weightings outlined in the official exam guide.
+
+Users are strongly encouraged to review the official AWS sources for complete, authoritative, and up-to-date information:
+
+- 🌐 [AWS Certification: Cloud Practitioner](https://aws.amazon.com/certification/certified-cloud-practitioner/)
+- 📚 [AWS Skill Builder](https://skillbuilder.aws)
+- 📖 [CLF-C02 Exam Guide (PDF)](https://d1.awsstatic.com/training-and-certification/docs-cloud-practitioner/AWS-Certified-Cloud-Practitioner_Exam-Guide.pdf)
+
+---
+
 ## ⚠️ Disclaimer
 
 This app is an independent study tool created for educational purposes only. It is not sponsored, endorsed, approved, or affiliated with Amazon Web Services, Inc.
