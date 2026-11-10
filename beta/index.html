@@ -486,11 +486,11 @@ body.sim-active .nav{display:none;}
     <div class="page-title">Simulation Exam</div>
     <div class="page-sub">A full-length practice test under exam conditions.</div>
     <div class="sim-rules">
-      <div class="sim-rule"><b>65 questions &middot; 90 minutes</b><span>The clock keeps running if you leave the app, like a real exam.</span></div>
+      <div class="sim-rule"><b>65 questions &middot; 90 minutes</b><span>The clock pauses if you leave or close the app, and picks up where it stopped.</span></div>
       <div class="sim-rule"><b>Weighted like the real exam</b><span>16 Cloud Concepts, 20 Security, 22 Technology, 7 Billing. A new random mix every attempt.</span></div>
       <div class="sim-rule"><b>No feedback until you submit</b><span>Flag questions, jump between questions from the Review screen, and change answers any time.</span></div>
       <div class="sim-rule"><b>Scaled score 100&ndash;1000</b><span>700 is the passing line. Every question counts here. The score is an estimate, since AWS does not publish its exact formula.</span></div>
-      <div class="sim-rule"><b>Progress saves automatically</b><span>Closed the app by accident? Resume from Home while time remains.</span></div>
+      <div class="sim-rule"><b>Progress saves automatically</b><span>Closed the app? Resume from Home any time. Your answers are saved.</span></div>
     </div>
     <div class="sim-best" id="sim-best"></div>
     <button class="btn-primary sim-full" onclick="simStart()">Start Exam</button>
@@ -1078,6 +1078,11 @@ function simLoad(){
     return s;
   }catch(e){simLS(SIM_KEY,null);return null;}
 }
+// The exam clock only runs while the app is open. A saved exam is frozen at its last heartbeat (or pause).
+function simLeftSaved(s){
+  if(s.paused&&typeof s.left==='number')return s.left;
+  return s.endAt-(s.seen||Date.now());
+}
 function simFmt(ms){
   const t=Math.ceil(Math.max(0,ms)/1000);
   const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60;
@@ -1119,7 +1124,7 @@ function simRefreshHome(){
   document.getElementById('sim-home-sub').innerHTML='65 Q &middot; 90 min &middot; scored like the real exam'+(best?' &middot; Best '+best:'');
   const s=simLoad();
   if(s){
-    const rem=s.endAt-Date.now();
+    const rem=simLeftSaved(s);
     const done=s.ans.filter(a=>a.length).length;
     document.getElementById('sim-resume-sub').textContent=rem>0
       ?simFmt(rem)+' left · '+done+' of '+s.ids.length+' answered'
@@ -1139,7 +1144,7 @@ function simOpenIntro(){
 function simStart(){
   if(simLoad()&&!confirm('You have an exam in progress. Starting a new one discards it. Continue?'))return;
   const ids=simBuild(),now=Date.now();
-  simS={ids:ids,ans:ids.map(()=>[]),flag:ids.map(()=>false),cur:0,startAt:now,endAt:now+SIM_MINUTES*60000,sig:simSig(ids)};
+  simS={ids:ids,ans:ids.map(()=>[]),flag:ids.map(()=>false),cur:0,startAt:now,endAt:now+SIM_MINUTES*60000,seen:now,paused:false,sig:simSig(ids)};
   simSave();
   simEnter();
 }
@@ -1147,7 +1152,9 @@ function simResume(){
   const s=simLoad();
   if(!s){simRefreshHome();return;}
   simS=s;
-  if(Date.now()>=simS.endAt){simFinish(true);return;}
+  const left=simLeftSaved(simS);
+  if(left<=0){simFinish(true);return;}
+  simS.endAt=Date.now()+left;simS.paused=false;simS.seen=Date.now();simSave();
   simEnter();
 }
 function simEnter(){
@@ -1160,8 +1167,8 @@ function simEnter(){
   simWakeOn();
 }
 function simExit(){
-  if(!confirm('Leave the exam? Your answers are saved and the clock keeps running. Resume from Home before time runs out.'))return;
-  clearInterval(simTimer);simTimer=null;simWakeOff();
+  if(!confirm('Leave the exam? Your answers are saved and the clock pauses. Resume from Home any time.'))return;
+  simPause();simWakeOff();
   document.body.classList.remove('sim-active');
   goHome();
 }
@@ -1172,9 +1179,22 @@ function simStartTimer(){
   simTick();
   simTimer=setInterval(simTick,1000);
 }
+let simBeat=0;
+function simPause(){
+  clearInterval(simTimer);simTimer=null;
+  if(!simS||simS.paused)return;
+  simS.left=Math.max(0,simS.endAt-Date.now());simS.paused=true;simSave();
+}
+function simUnpause(){
+  if(!simS||!simS.paused)return;
+  simS.endAt=Date.now()+simS.left;simS.paused=false;simS.seen=Date.now();simSave();
+  simStartTimer();
+}
 function simTick(){
-  if(!simS)return;
+  if(!simS||simS.paused)return;
   const rem=simS.endAt-Date.now();
+  simS.seen=Date.now();
+  if(++simBeat%2===0)simSave();
   ['sim-timer','sim-timer2'].forEach(id=>{
     const el=document.getElementById(id);
     el.textContent=simFmt(rem);
@@ -1184,10 +1204,13 @@ function simTick(){
   if(rem<=0)simFinish(true);
 }
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden||!simS)return;
+  if(!simS||!document.body.classList.contains('sim-active'))return;
+  if(document.hidden){simPause();return;}
+  simUnpause();
   simTick();
-  if(!simWake&&document.body.classList.contains('sim-active'))simWakeOn();
+  if(!simWake)simWakeOn();
 });
+window.addEventListener('pagehide',()=>{if(simS&&document.body.classList.contains('sim-active'))simPause();});
 async function simWakeOn(){
   try{if('wakeLock' in navigator)simWake=await navigator.wakeLock.request('screen');}catch(e){}
 }
@@ -1307,7 +1330,7 @@ function simFinish(timeUp){
     else if(a.length)gain+=3;
   });
   const scaled=simScaled(correct,n);
-  const res={ts:Date.now(),ids:s.ids,ans:s.ans,flag:s.flag,correct:correct,answered:answered,total:n,scaled:scaled,pass:scaled>=SIM_PASS,used:Math.min(Date.now(),s.endAt)-s.startAt,timeUp:!!timeUp,gain:gain,dom:dom};
+  const res={ts:Date.now(),ids:s.ids,ans:s.ans,flag:s.flag,correct:correct,answered:answered,total:n,scaled:scaled,pass:scaled>=SIM_PASS,used:SIM_MINUTES*60000-Math.max(0,s.endAt-Date.now()),timeUp:!!timeUp,gain:gain,dom:dom};
   xp+=gain;simLS('l730xp',String(xp));
   if(scaled>parseInt(simLS(SIM_BEST)||'0'))simLS(SIM_BEST,String(scaled));
   let hist=[];
