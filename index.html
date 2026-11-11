@@ -284,6 +284,39 @@ body.sim-active .nav{display:none;}
 .sa-opt.right em{color:#006630;}
 .sa-opt.mine em{color:#cc0033;}
 .sa-card .explain-box{margin-top:10px;background:#f6fbf6;border:1px solid #e3efe3;}
+
+/* ===== LISTEN MODE (v0.0.2) ===== */
+#s-listen{background:#00e87a;padding-bottom:96px;}
+.ls-wrap{padding:0 16px;}
+.ls-top{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 0;}
+.ls-tabs{display:flex;gap:6px;margin:6px 0 10px;}
+.ls-tab{flex:1;padding:10px 4px;border-radius:10px;border:2px solid #1a2e1a;background:#00d46e;color:#1a2e1a;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+.ls-tab.on{background:#7c00ff;border-color:#7c00ff;color:#fff;}
+.ls-sel{width:100%;padding:11px 12px;border-radius:10px;border:2px solid #1a2e1a;background:#f0fff6;color:#1a2e1a;font-family:inherit;font-size:13px;font-weight:600;}
+.ls-card{background:#f0fff6;border-radius:16px;padding:16px;margin:12px 0;height:36vh;min-height:190px;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
+.ls-meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;font-weight:800;color:#7c00ff;margin-bottom:10px;}
+.ls-seg{font-size:14px;line-height:1.6;color:#1a2e1a;padding:7px 10px;border-radius:8px;margin-bottom:4px;border-left:4px solid transparent;opacity:.62;}
+.ls-seg.now{opacity:1;background:#fff;border-left-color:#7c00ff;}
+.ls-seg.done{opacity:.85;}
+.ls-seg.think{font-weight:700;color:#7c00ff;}
+.ls-ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin:6px 0 14px;}
+.ls-ctl button{border:2px solid #1a2e1a;background:#00d46e;color:#1a2e1a;border-radius:50%;width:56px;height:56px;font-size:20px;cursor:pointer;font-family:inherit;}
+.ls-ctl button.main{width:76px;height:76px;background:#7c00ff;border-color:#7c00ff;color:#fff;font-size:28px;}
+.ls-ctl button:disabled{opacity:.4;}
+.ls-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.ls-field label{display:block;font-size:10px;letter-spacing:.1em;font-weight:800;color:#2e4a2e;margin-bottom:4px;}
+.ls-field.full{grid-column:1/-1;}
+.ls-tog{display:flex;align-items:center;justify-content:space-between;background:#00d46e;border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:13px;font-weight:700;color:#1a2e1a;cursor:pointer;border:none;width:100%;font-family:inherit;}
+.ls-tog i{font-style:normal;font-size:11px;padding:3px 10px;border-radius:99px;background:#1a2e1a;color:#00e87a;}
+.ls-tog[aria-pressed="false"] i{background:rgba(0,0,0,.18);color:#2e4a2e;}
+.ls-note{font-size:11px;color:#2e4a2e;line-height:1.55;text-align:center;margin:10px 4px 0;}
+.ls-warn{background:#fff3cc;border:2px solid #ffb800;border-radius:12px;padding:12px 14px;font-size:13px;color:#1a2e1a;margin:12px 0;display:none;}
+.mini-listen{background:rgba(0,0,0,.1);border:none;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit;color:#1a2e1a;font-weight:700;}
+.mini-listen.on{background:#7c00ff;color:#fff;}
+.fc-nav-btn.on{background:#7c00ff;color:#fff;}
+.fc-bot{pointer-events:none;}
+.fc-wrap.open .fc-bot{pointer-events:auto;}
+.fc-nav{position:relative;z-index:2;}
 </style>
 </head>
 <body>
@@ -373,6 +406,11 @@ body.sim-active .nav{display:none;}
       <div class="dinfo"><div class="dname">Timed Simulation Exam</div><div class="dsub" id="sim-home-sub">65 Q &middot; 90 min &middot; scored like the real exam</div></div>
       <div class="dpct" style="font-size:10px;">START</div>
     </button>
+    <button class="drow" onclick="listenOpen()">
+      <div class="dcol" style="background:#7c00ff"></div>
+      <div class="dinfo"><div class="dname">Listen Mode</div><div class="dsub">Hands-free audio &middot; quiz Q&amp;A, flashcards, Cloud 101</div></div>
+      <div class="dpct" style="font-size:10px;">LISTEN</div>
+    </button>
   </div>
   <div class="home-footer">Learn730 is an independent study resource by Solo730 Multimedia LLC. Not affiliated with, authorized, maintained, sponsored, or endorsed by Amazon Web Services (AWS) or Amazon.com, Inc. &middot; Free Forever</div>
 </div>
@@ -403,6 +441,7 @@ body.sim-active .nav{display:none;}
     </div>
     <div class="fc-nav">
       <button class="fc-nav-btn" onclick="fcNav(-1)">&#8592; Prev</button>
+      <button class="fc-nav-btn" id="fc-listen" onclick="listenCard()" aria-label="Read card aloud">&#128266; Listen</button>
       <button class="fc-nav-btn" onclick="fcNav(1)">Next &#8594;</button>
     </div>
   </div>
@@ -449,6 +488,7 @@ body.sim-active .nav{display:none;}
 <div id="s-quiz" class="screen">
   <div class="quiz-bar">
     <button class="back-btn" onclick="goHome()">&#8592; Home</button>
+    <button class="mini-listen" id="q-listen" onclick="listenQuizNow()" aria-label="Read aloud">&#128266;</button>
     <div class="q-count" id="q-count">1 of 20</div>
   </div>
   <div class="q-bar"><div class="q-bar-fill" id="q-bar-fill" style="width:0%"></div></div>
@@ -559,6 +599,49 @@ body.sim-active .nav{display:none;}
     <div class="page-title">Answer Review</div>
     <div class="sa-filters" id="sa-filters"></div>
     <div id="sa-list"></div>
+  </div>
+</div>
+
+<!-- LISTEN MODE -->
+<div id="s-listen" class="screen">
+  <div class="ls-top"><button class="back-btn" onclick="goHome()">&#8592; Home</button></div>
+  <div class="page-header" style="padding-top:12px;">
+    <div class="page-title">Listen</div>
+    <div class="page-sub">Hands-free study. Uses your phone&rsquo;s built-in voice, so no extra data.</div>
+  </div>
+  <div class="ls-wrap">
+    <div class="ls-warn" id="ls-unsupported">Audio isn&rsquo;t available in this browser. Try Chrome on Android or desktop.</div>
+    <div class="ls-tabs" role="tablist">
+      <button class="ls-tab" id="ls-tab-quiz" onclick="listenMode('quiz')">Quiz Q&amp;A</button>
+      <button class="ls-tab" id="ls-tab-cards" onclick="listenMode('cards')">Flashcards</button>
+      <button class="ls-tab" id="ls-tab-101" onclick="listenMode('101')">Cloud 101</button>
+    </div>
+    <select class="ls-sel" id="ls-filter" aria-label="Filter" onchange="listenFilter(this.value)"></select>
+    <div class="ls-card" id="ls-card" aria-live="off">
+      <div class="ls-meta"><span id="ls-count">&nbsp;</span><span id="ls-state">READY</span></div>
+      <div id="ls-segs"></div>
+    </div>
+    <div class="ls-ctl">
+      <button id="ls-prev" onclick="listenPrev()" aria-label="Previous">&#9198;</button>
+      <button id="ls-play" class="main" onclick="listenToggle()" aria-label="Play">&#9654;</button>
+      <button id="ls-next" onclick="listenNext()" aria-label="Next">&#9197;</button>
+    </div>
+    <div class="ls-grid">
+      <div class="ls-field"><label for="ls-rate">SPEED</label>
+        <select class="ls-sel" id="ls-rate" onchange="listenSet('rate',parseFloat(this.value))">
+          <option value="0.8">0.8x</option><option value="0.9">0.9x</option><option value="1">1x</option><option value="1.1">1.1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="1.75">1.75x</option>
+        </select></div>
+      <div class="ls-field" id="ls-think-f"><label for="ls-think">THINK TIME</label>
+        <select class="ls-sel" id="ls-think" onchange="listenSet('think',parseInt(this.value))">
+          <option value="0">None</option><option value="3">3 sec</option><option value="5">5 sec</option><option value="8">8 sec</option><option value="12">12 sec</option>
+        </select></div>
+      <div class="ls-field full"><label for="ls-voice">VOICE</label>
+        <select class="ls-sel" id="ls-voice" onchange="listenSet('voice',this.value)"></select></div>
+    </div>
+    <button class="ls-tog" id="ls-auto" aria-pressed="true" onclick="listenTog('auto')">Auto-advance (podcast mode)<i>ON</i></button>
+    <button class="ls-tog" id="ls-wrong" aria-pressed="true" onclick="listenTog('wrong')">Explain wrong answers<i>ON</i></button>
+    <button class="ls-tog" id="ls-shuffle" aria-pressed="true" onclick="listenTog('shuffle')">Shuffle order<i>ON</i></button>
+    <div class="ls-note">Keep the screen on while listening. Audio pauses if you switch apps or lock the phone, and picks up when you press play.</div>
   </div>
 </div>
 
@@ -814,6 +897,7 @@ let xp=parseInt(localStorage.getItem('l730xp')||'0');
 let domainScores={1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0}};
 
 function show(id){
+  if(typeof listenOnShow==='function')listenOnShow(id);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
@@ -895,6 +979,7 @@ function startQuiz(domain){
 }
 
 function renderQ(){
+  if(typeof listenStopOnce==='function')listenStopOnce();
   if(qIdx>=qPool.length){showScore();return;}
   const q=qPool[qIdx];
   answered=false;sel=[];
@@ -1024,6 +1109,7 @@ function setFilter(t){
 }
 
 function renderFC(){
+  if(typeof listenStopOnce==='function')listenStopOnce();
   const c=fcPool[fcIdx];
   fcOpen=false;
   document.getElementById('fc-topic').textContent=c.t.toUpperCase();
@@ -1424,6 +1510,322 @@ function simRenderAnswers(){
     </div>`;
   }).join(''):'<div class="sim-fine" style="max-width:none;margin-top:16px;">Nothing in this filter.</div>';
   window.scrollTo(0,0);
+}
+
+/* ===================== LISTEN MODE (v0.0.2) ===================== */
+const LSN_KEY='l730listen';
+let lsn={rate:1,voice:'',auto:true,wrong:true,think:5,shuffle:true,mode:'quiz',filter:'0'};
+try{Object.assign(lsn,JSON.parse(localStorage.getItem(LSN_KEY)||'{}'));}catch(e){}
+function lsnSave(){try{localStorage.setItem(LSN_KEY,JSON.stringify(lsn));}catch(e){}}
+
+const LSN_OK=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+let lsnQueue=[],lsnIdx=0,lsnSeg=0,lsnState='stopped',lsnGen=0,lsnTimer=null,lsnTick=null,lsnVoices=[],lsnWake=null,lsnItem=null;
+const lsnKeep=[]; // hold utterance refs (Chrome can GC them mid-speech and drop onend)
+let lsnOnce=false;
+
+/* ---------- text prep ---------- */
+const LSN_SAY={'AWS':'A W S','EC2':'E C 2','S3':'S 3','EBS':'E B S','EFS':'E F S','IAM':'I A M','VPC':'V P C','RDS':'R D S','MFA':'M F A','CDN':'C D N','SNS':'S N S','SQS':'S Q S','KMS':'K M S','WAF':'W A F','ELB':'E L B','ALB':'A L B','DNS':'D N S','SLA':'S L A','API':'A P I','APIs':'A P Is','TCO':'T C O','CLI':'C L I','SDK':'S D K','AZ':'A Z','AZs':'A Zs','CPU':'C P U','GPU':'G P U','SSD':'S S D','HDD':'H D D','VM':'V M','VMs':'V Ms','ARN':'A R N','SSO':'S S O','IoT':'I O T','CLF-C02':'C L F C zero 2','CCP':'C C P','SAA':'S A A','DDoS':'D Dos','SQL':'sequel','NoSQL':'no sequel','JSON':'jason','HTTP':'H T T P','HTTPS':'H T T P S','TLS':'T L S','SSL':'S S L','VPN':'V P N','KB':'K B','GB':'gigabytes','TB':'terabytes','PB':'petabytes','CapEx':'cap ex','OpEx':'op ex','RAM':'ram','ISO':'I S O','SOC':'sock','PCI':'P C I','HIPAA':'hippa','GDPR':'G D P R','IaaS':'I A A S','PaaS':'pass','SaaS':'sass','ECS':'E C S','EKS':'E K S','SES':'S E S','CLF':'C L F','EC':'E C','OS':'O S','IP':'I P','URL':'U R L','USD':'U S D','AI':'A I','ML':'M L','FAQ':'F A Q','HR':'H R','IT':'I T','AMI':'A M I','AMIs':'A M Is','CIDR':'cider','NAT':'nat','ACL':'A C L','SCP':'S C P','SCPs':'S C Ps','CUR':'C U R','TAM':'T A M','APN':'A P N','AZ.':'A Z'};
+function lsnDecode(h){const d=document.createElement('div');d.innerHTML=String(h==null?'':h);return(d.textContent||'').replace(/\s+/g,' ').trim();}
+function lsnClean(t){
+  t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu,'');
+  t=t.replace(/\s+[—–]\s+/g,', ').replace(/[—–]/g,', ');
+  t=t.replace(/&/g,' and ').replace(/%/g,' percent').replace(/\//g,' slash ').replace(/→/g,' to ');
+  t=t.replace(/\b[A-Za-z][A-Za-z0-9-]*\b/g,w=>Object.prototype.hasOwnProperty.call(LSN_SAY,w)?LSN_SAY[w]:w);
+  return t.replace(/\s+/g,' ').trim();
+}
+function lsnName(v){const s=lsnDecode(v);const i=s.indexOf(' — ');return i>=3?s.slice(0,i):s;}
+function lsnLetters(a){const arr=Array.isArray(a)?a:[a];return arr.length===2?arr[0]+' and '+arr[1]:arr[0];}
+function lsnChunks(text){
+  const sents=text.split(/(?<=[.!?])\s+/),out=[];let cur='';
+  sents.forEach(s=>{
+    if((cur+' '+s).trim().length<=220){cur=(cur+' '+s).trim();}
+    else{if(cur)out.push(cur);
+      if(s.length<=220)cur=s;
+      else{let b='';s.split(/(?<=,)\s+/).forEach(p=>{if((b+' '+p).trim().length<=220)b=(b+' '+p).trim();else{if(b)out.push(b);b=p;}});cur=b;}}
+  });
+  if(cur)out.push(cur);
+  const fin=[];
+  out.forEach(c=>{
+    if(c.length<=230){fin.push(c);return;}
+    let b='';c.split(/\s+/).forEach(w=>{if((b+' '+w).trim().length<=220)b=(b+' '+w).trim();else{if(b)fin.push(b);b=w;}});
+    if(b)fin.push(b);
+  });
+  return fin;
+}
+
+/* ---------- items -> segments ---------- */
+function lsnLetterFix(t){return t.replace(/(^|\s)([A-E]) — /g,'$1Option $2. ');}
+function lsnBuild(ref){
+  const segs=[],S=(show,say,pause)=>segs.push({show:show,say:lsnClean(say==null?show:say),pause:pause==null?500:pause});
+  if(ref.k==='q'){
+    const q=ref.q;
+    S('Question. '+lsnDecode(q.q),null,700);
+    if(q.two)S('Select two answers.',null,500);
+    Object.entries(q.o).forEach(([k,v])=>S(k+'. '+lsnName(v),'Option '+k+'. '+lsnName(v),350));
+    if(lsn.think>0)segs.push({think:true,ms:lsn.think*1000,show:'Think…'});
+    const ans=Array.isArray(q.a)?q.a:[q.a];
+    S('Answer: '+lsnLetters(q.a),'The correct answer'+(ans.length>1?'s are ':' is ')+lsnLetters(q.a)+'.',500);
+    S(lsnDecode(lsnLetterFix(q.ex.correct)),null,700);
+    if(lsn.wrong){
+      const wk=Object.keys(q.o).filter(k=>!ans.includes(k));
+      segs.push({show:'Why the others don’t fit',say:'Here is why the others don’t fit.',pause:500});
+      wk.forEach(k=>{const t=q.ex.wrong&&q.ex.wrong[k];if(t)S('Option '+k+'. '+lsnDecode(t),null,500);});
+    }
+    return {title:DN[q.d],segs:segs};
+  }
+  if(ref.k==='c'){
+    const c=ref.c;
+    S(c.w,c.w,300);
+    if(lsn.think>0)segs.push({think:true,ms:Math.min(lsn.think,5)*1000,show:'Think…'});
+    S(lsnDecode(c.d),null,600);
+    if(c.tip)S('Exam tip: '+lsnDecode(c.tip).replace(/^Exam tip:\s*/i,''),null,500);
+    return {title:c.t,segs:segs};
+  }
+  // lecture (Cloud 101): ref.title + ref.body
+  S(ref.title,ref.title,800);
+  const sents=ref.body.split(/(?<=[.!?])\s+/);
+  for(let i=0;i<sents.length;i+=3)S(sents.slice(i,i+3).join(' '),null,500);
+  return {title:'Cloud 101',segs:segs};
+}
+
+/* ---------- queue ---------- */
+function lsnLecture(){
+  return [...document.querySelectorAll('#s-101 .tip-card')].map(el=>{
+    const t=el.querySelector('.tip-title'),b=el.querySelector('.tip-text');
+    return {k:'l',title:lsnDecode(t?t.innerHTML:''),body:lsnDecode(b?b.innerHTML:'')};
+  }).filter(r=>r.title&&r.body);
+}
+function lsnMakeQueue(){
+  let q=[];
+  if(lsn.mode==='quiz'){
+    const d=parseInt(lsn.filter)||0;
+    q=ALL_Q.filter(x=>!d||x.d===d).map(x=>({k:'q',q:x}));
+    if(lsn.shuffle)q=shuffle(q);
+  }else if(lsn.mode==='cards'){
+    const pool=lsn.filter==='0'||!lsn.filter?sortByDomain(CARDS):CARDS.filter(c=>c.t===lsn.filter);
+    q=pool.map(c=>({k:'c',c:c}));
+    if(lsn.shuffle)q=shuffle(q);
+  }else q=lsnLecture();
+  lsnQueue=q;lsnIdx=0;lsnSeg=0;
+}
+
+/* ---------- engine ---------- */
+function lsnCancel(){
+  lsnGen++;
+  clearTimeout(lsnTimer);lsnTimer=null;clearInterval(lsnTick);lsnTick=null;
+  if(LSN_OK){try{speechSynthesis.cancel();}catch(e){}}
+  lsnKeep.length=0;
+}
+function lsnSpeak(text,done){
+  const g=lsnGen;
+  if(!LSN_OK){done();return;}
+  const parts=lsnChunks(text);let i=0;
+  (function next(){
+    if(g!==lsnGen)return;
+    if(i>=parts.length){done();return;}
+    const u=new SpeechSynthesisUtterance(parts[i++]);
+    u.rate=lsn.rate;
+    const v=lsnVoices.find(x=>x.voiceURI===lsn.voice||x.name===lsn.voice);
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang='en-US';
+    u.onend=()=>{if(g===lsnGen)next();};
+    u.onerror=e=>{if(g!==lsnGen)return;if(e&&(e.error==='interrupted'||e.error==='canceled'))return;next();};
+    lsnKeep.push(u);
+    try{speechSynthesis.speak(u);}catch(err){next();}
+  })();
+}
+function lsnRender(){
+  const ref=lsnQueue[lsnIdx];
+  const countEl=document.getElementById('ls-count'),segsEl=document.getElementById('ls-segs');
+  if(!ref){countEl.textContent='';segsEl.innerHTML='<div class="ls-seg now">Nothing to play for this selection.</div>';lsnItem=null;return;}
+  lsnItem=lsnBuild(ref);
+  const unit=lsn.mode==='quiz'?'Question':lsn.mode==='cards'?'Card':'Part';
+  countEl.textContent=(lsnItem.title||'').toUpperCase()+' · '+unit+' '+(lsnIdx+1)+' of '+lsnQueue.length;
+  segsEl.innerHTML='';document.getElementById('ls-card').scrollTop=0;
+  lsnItem.segs.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='ls-seg'+(s.think?' think':'');d.id='ls-seg-'+i;d.textContent=s.show;segsEl.appendChild(d);
+  });
+  lsnMark();
+}
+function lsnMark(){
+  if(!lsnItem)return;
+  lsnItem.segs.forEach((s,i)=>{
+    const el=document.getElementById('ls-seg-'+i);if(!el)return;
+    el.classList.toggle('now',lsnState==='playing'&&i===lsnSeg);
+    el.classList.toggle('done',i<lsnSeg);
+  });
+  const now=document.getElementById('ls-seg-'+lsnSeg);
+  const box=document.getElementById('ls-card');
+  if(now&&box&&lsnState==='playing'){try{box.scrollTo({top:Math.max(0,now.offsetTop-44),behavior:'smooth'});}catch(e){box.scrollTop=Math.max(0,now.offsetTop-44);}}
+}
+function lsnUI(){
+  const st={playing:'PLAYING',paused:'PAUSED',stopped:'READY',done:'FINISHED'}[lsnState]||'READY';
+  document.getElementById('ls-state').textContent=st;
+  const b=document.getElementById('ls-play');
+  b.innerHTML=lsnState==='playing'?'&#9208;':'&#9654;';
+  b.setAttribute('aria-label',lsnState==='playing'?'Pause':'Play');
+  document.getElementById('ls-prev').disabled=!lsnQueue.length||lsnIdx===0;
+  document.getElementById('ls-next').disabled=!lsnQueue.length||lsnIdx>=lsnQueue.length-1;
+  document.getElementById('ls-think-f').style.opacity=lsn.mode==='101'?.4:1;
+  lsnMark();lsnMedia();
+}
+function lsnRun(){
+  if(lsnState!=='playing'||!lsnItem)return;
+  if(lsnSeg>=lsnItem.segs.length){lsnItemDone();return;}
+  const s=lsnItem.segs[lsnSeg],g=lsnGen;
+  lsnMark();
+  if(s.think){
+    let left=Math.ceil(s.ms/1000);const el=document.getElementById('ls-seg-'+lsnSeg);
+    if(el)el.textContent='Think… '+left;
+    lsnTick=setInterval(()=>{left--;if(el&&left>0)el.textContent='Think… '+left;},1000);
+    lsnTimer=setTimeout(()=>{if(g!==lsnGen)return;clearInterval(lsnTick);lsnTick=null;if(el)el.textContent='Think…';lsnSeg++;lsnRun();},s.ms);
+    return;
+  }
+  lsnSpeak(s.say,()=>{
+    if(g!==lsnGen)return;
+    lsnTimer=setTimeout(()=>{if(g!==lsnGen)return;lsnSeg++;lsnRun();},s.pause);
+  });
+}
+function lsnItemDone(){
+  const g=lsnGen;
+  if(lsn.auto&&lsnIdx<lsnQueue.length-1){
+    lsnTimer=setTimeout(()=>{if(g!==lsnGen)return;lsnIdx++;lsnSeg=0;lsnRender();lsnUI();lsnRun();},1200);
+  }else{
+    lsnState=lsnIdx>=lsnQueue.length-1?'done':'stopped';lsnSeg=0;lsnWakeOff();lsnUI();
+  }
+}
+function lsnPlay(){
+  if(!LSN_OK||!lsnQueue.length)return;
+  if(lsnState==='done'){lsnIdx=0;lsnSeg=0;lsnRender();}
+  else if(lsnItem&&lsnSeg>=lsnItem.segs.length){if(lsnIdx<lsnQueue.length-1){lsnIdx++;}lsnSeg=0;lsnRender();}
+  lsnCancel();lsnOnceOff();
+  lsnState='playing';lsnUI();lsnWakeOn();
+  setTimeout(lsnRun,60);
+}
+function lsnPause(){
+  if(lsnState!=='playing')return;
+  lsnCancel();lsnState='paused';lsnWakeOff();lsnUI();
+}
+function listenToggle(){if(lsnState==='playing')lsnPause();else lsnPlay();}
+function listenNext(){lsnGo(lsnIdx+1);}
+function listenPrev(){lsnGo(lsnIdx-1);}
+function lsnGo(i){
+  if(i<0||i>=lsnQueue.length)return;
+  const was=lsnState==='playing';
+  lsnCancel();lsnIdx=i;lsnSeg=0;lsnRender();
+  if(was){lsnState='playing';lsnUI();setTimeout(lsnRun,60);}else{if(lsnState==='done')lsnState='stopped';lsnUI();}
+}
+function listenStop(){
+  lsnCancel();lsnOnceOff();
+  if(lsnState!=='stopped'){lsnState='stopped';lsnWakeOff();}
+  lsnSeg=0;
+  if(document.getElementById('s-listen').classList.contains('active'))lsnUI();
+}
+
+/* ---------- settings + screen ---------- */
+function listenSet(k,v){lsn[k]=v;lsnSave();}
+function listenTog(k){
+  lsn[k]=!lsn[k];lsnSave();lsnTogUI();
+  if(k==='shuffle'||k==='wrong'){const was=lsnState==='playing';lsnCancel();lsnState='stopped';if(k==='shuffle'){lsnMakeQueue();}lsnSeg=0;lsnRender();lsnUI();if(was)lsnPlay();}
+}
+function lsnTogUI(){
+  [['auto','ls-auto'],['wrong','ls-wrong'],['shuffle','ls-shuffle']].forEach(([k,id])=>{
+    const b=document.getElementById(id);b.setAttribute('aria-pressed',lsn[k]?'true':'false');b.querySelector('i').textContent=lsn[k]?'ON':'OFF';
+  });
+  document.getElementById('ls-wrong').style.display=lsn.mode==='quiz'?'':'none';
+}
+function lsnFilterOpts(){
+  const sel=document.getElementById('ls-filter');let h='';
+  if(lsn.mode==='quiz'){h='<option value="0">All domains</option>'+[1,2,3,4].map(d=>'<option value="'+d+'">Domain '+d+' · '+DN[d]+'</option>').join('');}
+  else if(lsn.mode==='cards'){h='<option value="0">All flashcards</option>'+[...new Set(sortByDomain(CARDS).map(c=>c.t))].map(t=>'<option value="'+t.replace(/"/g,'&quot;')+'">'+t+'</option>').join('');}
+  else h='<option value="0">All six parts</option>';
+  sel.innerHTML=h;sel.style.display=lsn.mode==='101'?'none':'';
+  if([...sel.options].some(o=>o.value===String(lsn.filter)))sel.value=String(lsn.filter);else{lsn.filter='0';sel.value='0';}
+}
+function listenMode(m){
+  lsnCancel();lsnState='stopped';lsnWakeOff();
+  lsn.mode=m;lsn.filter='0';lsnSave();
+  ['quiz','cards','101'].forEach(x=>document.getElementById('ls-tab-'+x).classList.toggle('on',x===m));
+  lsnFilterOpts();lsnTogUI();lsnMakeQueue();lsnRender();lsnUI();
+}
+function listenFilter(v){
+  lsnCancel();lsnState='stopped';lsnWakeOff();lsn.filter=v;lsnSave();lsnMakeQueue();lsnRender();lsnUI();
+}
+function lsnLoadVoices(){
+  if(!LSN_OK)return;
+  const all=speechSynthesis.getVoices()||[];
+  lsnVoices=all.filter(v=>/^en/i.test(v.lang)).sort((a,b)=>(/^en[-_]US/i.test(b.lang)-/^en[-_]US/i.test(a.lang))||((b.localService?1:0)-(a.localService?1:0))||a.name.localeCompare(b.name));
+  const sel=document.getElementById('ls-voice');
+  if(!lsnVoices.length){sel.innerHTML='<option value="">Device default</option>';return;}
+  sel.innerHTML=lsnVoices.map(v=>'<option value="'+v.voiceURI.replace(/"/g,'&quot;')+'">'+v.name+' ('+v.lang+')</option>').join('');
+  const cur=lsnVoices.find(v=>v.voiceURI===lsn.voice||v.name===lsn.voice)||lsnVoices[0];
+  lsn.voice=cur.voiceURI;sel.value=cur.voiceURI;
+}
+function listenOpen(){
+  document.body.classList.remove('sim-active');
+  document.querySelector('.quiz-footer').style.display='none';
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-quiz').classList.add('active');
+  show('s-listen');
+  document.getElementById('ls-unsupported').style.display=LSN_OK?'none':'block';
+  lsnLoadVoices();
+  document.getElementById('ls-rate').value=String(lsn.rate);
+  document.getElementById('ls-think').value=String(lsn.think);
+  listenMode(lsn.mode);
+}
+if(LSN_OK){try{speechSynthesis.addEventListener('voiceschanged',lsnLoadVoices);}catch(e){}}
+
+/* ---------- lifecycle ---------- */
+function listenOnShow(id){if(id!=='s-listen'&&(lsnState!=='stopped'||lsnOnce))listenStop();}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(lsnState==='playing')lsnPause();lsnOnceOff();}
+  else if(lsnState==='playing'||lsnState==='paused'){lsnUI();}
+});
+window.addEventListener('pagehide',()=>{if(LSN_OK){try{speechSynthesis.cancel();}catch(e){}}});
+async function lsnWakeOn(){try{if('wakeLock' in navigator&&!lsnWake)lsnWake=await navigator.wakeLock.request('screen');}catch(e){}}
+function lsnWakeOff(){try{if(lsnWake)lsnWake.release();}catch(e){}lsnWake=null;}
+function lsnMedia(){
+  if(!('mediaSession' in navigator))return;
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:lsnItem?(lsnItem.title+' · '+(lsnIdx+1)+'/'+lsnQueue.length):'Learn730 Listen',artist:'Learn730',album:'CLF-C02 audio study'});
+    navigator.mediaSession.playbackState=lsnState==='playing'?'playing':'paused';
+    navigator.mediaSession.setActionHandler('play',listenToggle);
+    navigator.mediaSession.setActionHandler('pause',listenToggle);
+    navigator.mediaSession.setActionHandler('nexttrack',listenNext);
+    navigator.mediaSession.setActionHandler('previoustrack',listenPrev);
+  }catch(e){}
+}
+
+/* ---------- one-shot read buttons (flashcards + practice quiz) ---------- */
+function lsnOnceOff(){
+  if(!lsnOnce)return;
+  lsnOnce=false;lsnCancel();
+  document.querySelectorAll('.mini-listen.on,.fc-nav-btn.on').forEach(b=>b.classList.remove('on'));
+}
+function listenStopOnce(){if(lsnOnce)lsnOnceOff();}
+function lsnReadOnce(text,btn){
+  if(!LSN_OK)return;
+  if(lsnOnce){lsnOnceOff();return;}
+  lsnCancel();
+  if(lsnState!=='stopped'){lsnState='stopped';lsnWakeOff();}
+  lsnOnce=true;if(btn)btn.classList.add('on');
+  lsnSpeak(text,()=>lsnOnceOff());
+}
+function listenCard(){
+  const c=fcPool[fcIdx];if(!c)return;
+  lsnReadOnce(lsnClean(c.w)+'. '+lsnClean(lsnDecode(c.d))+' Exam tip. '+lsnClean(lsnDecode(c.tip)),document.getElementById('fc-listen'));
+}
+function listenQuizNow(){
+  const q=qPool[qIdx];if(!q)return;
+  let t;
+  if(answered){
+    const ans=Array.isArray(q.a)?q.a:[q.a];
+    t='The correct answer'+(ans.length>1?'s are ':' is ')+lsnLetters(q.a)+'. '+lsnClean(lsnDecode(lsnLetterFix(q.ex.correct)));
+    Object.keys(q.o).filter(k=>!ans.includes(k)).forEach(k=>{if(q.ex.wrong&&q.ex.wrong[k])t+=' Option '+k+'. '+lsnClean(lsnDecode(q.ex.wrong[k]));});
+  }else{
+    t=lsnClean(lsnDecode(q.q))+(q.two?' Select two answers.':'');
+    Object.entries(q.o).forEach(([k,v])=>{t+=' Option '+k+'. '+lsnClean(lsnName(v))+'.';});
+  }
+  lsnReadOnce(t,document.getElementById('q-listen'));
 }
 
 // INIT
